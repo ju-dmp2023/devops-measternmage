@@ -60,3 +60,5 @@ elif (args.rest):
     calculator_rest_service.main(args)
 
 # CI/CD pipeline verification test
+
+# second CI/CD verification test
