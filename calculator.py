@@ -58,3 +58,5 @@ elif (args.divide):
     print(f'{args.divide[0]}/{args.divide[1]}={result}')
 elif (args.rest):
     calculator_rest_service.main(args)
+
+# CI/CD pipeline verification test
