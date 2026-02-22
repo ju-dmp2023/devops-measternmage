@@ -1,16 +1,13 @@
-name: Build and Push Docker Image
+name: Calculator Pipeline
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,8 +22,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context:
-          file: ./Dockerfile  
+          context: .
+          file: ./BE/Dockerfile
           push: true
           tags: |
             judevops.azurecr.io/fady-calculator:latest
