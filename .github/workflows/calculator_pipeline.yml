@@ -25,15 +25,11 @@ jobs:
           pip install -r BE/requirements.txt
           pip install pytest requests openapi-python-client fastapi uvicorn
 
-      - name: Start REST API
+      - name: Start API and Run tests
         run: |
           export PYTHONPATH=.
           python BE/calculator.py --rest --port 5001 > api_log.txt 2>&1 &
-          sleep 10
-
-      - name: Run tests
-        run: |
-          export PYTHONPATH=.
+          sleep 5
           pytest --junit-xml=report.xml
 
       - name: Print API Logs (if failed)
