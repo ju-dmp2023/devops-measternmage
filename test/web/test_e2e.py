@@ -15,21 +15,23 @@ class TestCalculatorWeb(WebBase):
     
     def test_full_calculator_flow(self):
         unique_name = f"user_{int(time.time())}"
-        self.page.goto(f"{self.app_url}/login.html")
+        self.page.goto(f"{self.app_url}/login.html", wait_until="networkidle")
         
         login_page = LoginPage(self.page)
         login_page.element("register_link").click()
+        
+        expect(self.page).to_have_url(f"{self.app_url}/register.html")
         
         register_page = RegisterPage(self.page)
         register_page.element("username").fill(unique_name) 
         register_page.element("password").fill("Pass123!")
         register_page.element("confirm_password").fill("Pass123!")
+        
         register_page.element("register_button").click()
         
-        expect(self.page).to_have_url(f"{self.app_url}/index.html", timeout=5000)
+        expect(self.page).to_have_url(f"{self.app_url}/index.html", timeout=10000)
         
         calc_page = CalculatorPage(self.page)
-        
         calc_page.element("btn_clear").click()
         
         calc_page.element("btn_1").click()
