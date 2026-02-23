@@ -7,6 +7,9 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,7 +20,9 @@ jobs:
           pip install pytest requests openapi-python-client
 
       - name: Start REST API
-        run: python BE/calculator.py --rest --port 5001 & 
+        run: |
+          python BE/calculator.py --rest --port 5001 & 
+          sleep 5
 
       - name: Run tests
         run: |
