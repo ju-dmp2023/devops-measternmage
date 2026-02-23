@@ -1,10 +1,37 @@
 name: Calculator Pipeline
+
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip install -r BE/requirements.txt
+          pip install pytest requests openapi-python-client
+
+      - name: Start REST API
+        run: python BE/calculator.py --rest --port 5001 & 
+
+      - name: Run tests
+        run: |
+          export PYTHONPATH=.
+          pytest --junit-xml=report.xml
+
+      - name: Publish Test Report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/report.xml'
+
   build-and-push:
+    needs: test 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,12 +42,10 @@ jobs:
           registry: judevops.azurecr.io
           username: ${{ secrets.AZURE_USERNAME }}
           password: ${{ secrets.AZURE_PASSWORD }}
-      - name: Build and push Docker image
+      - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: ./BE
           file: ./BE/Dockerfile
           push: true
-          tags: |
-            judevops.azurecr.io/fady-calculator:latest
-            judevops.azurecr.io/fady-calculator:${{ github.sha }}
+          tags: judevops.azurecr.io/fady-calculator:latest

@@ -23,28 +23,22 @@ def normal_dist_sleep(mean=2, stddev=1, min_sleep=1, max_sleep=4):
     the allowed range, then sleep for that duration.
     """
     while True:
-        # Generate a sleep time from a normal distribution
-        sleep_time = np.random.normal(mean, stddev)
-        # Check if the sleep time is within the allowed range
+-        sleep_time = np.random.normal(mean, stddev)
         if min_sleep <= sleep_time <= max_sleep:
-            break  # If it's within the range, proceed
+            break  
 
-    # Sleep for the computed duration
     time.sleep(sleep_time)
 
-# init FastAPI app
 app = FastAPI(title='Calculator', docs_url='/', description="Calculator API", version='1.0.0')
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],  
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods (GET, POST, etc.)
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],  
+    allow_headers=["*"],  
 )
 
-# defining exceptional JSON-response
 @app.exception_handler(Exception)
 async def error_handler(request, exc):
     """
@@ -190,16 +184,24 @@ async def logout():
         raise HTTPException(status_code=204, detail='No user has signed in.')
     return result
 
+
 def main(args):
-    """
-    Entry point for running the Calculator API with uvicorn.
+    import os
+    import uvicorn
+    import argparse
 
-    Args:
-        args (list[str]): Command-line arguments.
+    parser = argparse.ArgumentParser(description='Calculator server')
 
-    The function parses CLI arguments, sets default values from environment
-    variables if present, and starts the uvicorn server on 0.0.0.0.
-    """
+    parser.add_argument('--port', type=int, default=5001, help='Port, 5001 is default')
+    parser.add_argument('-r', '--rest', action='store_true')
+
+    args = parser.parse_args()
+
+    uvicorn.run(app, host="0.0.0.0", port=args.port)
+
+if __name__ == '__main__':
+    import sys
+    main(sys.argv[1:])
     import os
     import uvicorn
     import argparse
@@ -231,11 +233,10 @@ def main(args):
 
     args = parser.parse_args()
 
-    # Listen on all network interfaces
-    #app.run('0.0.0.0', port=args.flask_port, debug=args.debug)
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 if __name__ == '__main__':
     import sys
     main(sys.argv[1:])
+
 
