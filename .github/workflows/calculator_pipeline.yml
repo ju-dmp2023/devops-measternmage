@@ -23,18 +23,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r BE/requirements.txt
-          pip install pytest requests openapi-python-client fastapi uvicorn
+          pip install pytest requests openapi-python-client fastapi uvicorn pytest-playwright
 
-      - name: Start API and Run tests
+      - name: Install Playwright Browsers
+        run: |
+          playwright install --with-deps
+
+      - name: Start App with Docker Compose
+        run: docker compose -p webcalculator up -d
+
+      - name: Run All Tests
         run: |
           export PYTHONPATH=.
-          python BE/calculator.py --rest --port 5001 > api_log.txt 2>&1 &
-          sleep 5
-          pytest --junit-xml=report.xml
-
-      - name: Print API Logs (if failed)
-        if: failure()
-        run: cat api_log.txt
+          # Run API tests and Web E2E tests together
+          # We use --junit-xml to make sure the report is generated for both
+          pytest --junit-xml=report.xml test/web/test_e2e.py test/ # Adjust paths if needed
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
@@ -48,16 +51,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Log in to ACR
         uses: docker/login-action@v3
         with:
           registry: judevops.azurecr.io
           username: ${{ secrets.AZURE_USERNAME }}
           password: ${{ secrets.AZURE_PASSWORD }}
-      - name: Build and push
+
+      - name: Build and push BE
         uses: docker/build-push-action@v5
         with:
           context: ./BE
           file: ./BE/Dockerfile
           push: true
-          tags: judevops.azurecr.io/fady-calculator:latest
+          tags: judevops.azurecr.io/fady-calculator-be:latest 
+
+      - name: Build and push FE
+        uses: docker/build-push-action@v5
+        with:
+          context: ./FE
+          file: ./FE/Dockerfile
+          push: true
+          tags: judevops.azurecr.io/fady-calculator-fe:latest
