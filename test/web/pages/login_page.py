@@ -10,3 +10,8 @@ class LoginPage(PageBase):
             "login_button": "#login",      
             "register_link": "#register"   
         })
+        
+    def login_user(self, username, password):
+        self.element("username").fill(username)
+        self.element("password").fill(password)
+        self.element("login_button").click()
